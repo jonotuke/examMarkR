@@ -2,4 +2,5 @@
 
 export(exam_clean_grade_book)
 export(exam_clean_marks)
+export(exam_convert_prop)
 export(exam_get_prop)
