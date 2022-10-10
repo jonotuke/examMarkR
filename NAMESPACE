@@ -2,3 +2,4 @@
 
 export(exam_clean_grade_book)
 export(exam_clean_marks)
+export(exam_get_prop)
