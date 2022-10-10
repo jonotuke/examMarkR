@@ -17,3 +17,7 @@ proportions
 \description{
 exam_get_prop
 }
+\examples{
+x <- 1:10
+exam_get_prop(x, 10)
+}

@@ -15,3 +15,7 @@ cleaned column
 \description{
 converts missing to 0, and EX to missing
 }
+\examples{
+x <- c(0, "EX", NA)
+exam_clean_marks(x)
+}

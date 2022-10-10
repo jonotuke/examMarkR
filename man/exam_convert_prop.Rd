@@ -20,3 +20,12 @@ dataframe with proportions
 given a dataframe, some columns and a total row, converts
 to proportions
 }
+\examples{
+pacman::p_load(tidyverse, targets)
+df <- tibble(
+  A1 = c(10, 1, 2),
+  A2 = c(10, 2, 1)
+)
+df |> exam_convert_prop(A1, 1)
+df |> exam_convert_prop(A1:A2, 1)
+}

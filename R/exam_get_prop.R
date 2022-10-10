@@ -7,6 +7,8 @@
 #' @export
 #'
 #' @examples
+#' x <- 1:10
+#' exam_get_prop(x, 10)
 exam_get_prop <- function(x, total){
   x <- x / x[total]
   return(x)

@@ -1,0 +1,118 @@
+---
+title: "using-examMarkR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{using-examMarkR}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Load package
+```{r setup}
+pacman::p_load(tidyverse, examMarkR)
+```
+
+# Getting the data
+To get the data from MyUni do the following:
+
+1. Go to [MyUni](https://myuni.adelaide.edu.au).
+2. Go to course.
+3. Go to `Grades`.
+4. Click `Actions> Export Entire Gradebook`.
+
+# Cleaning the data
+## Cleaning in Excel
+The first cleaning is best done in Excel. This entails:
+
+1. Clean the assessment names.
+2. Remove unwanted columns. 
+
+You should be something that looks like this
+```{r}
+data("example_grade_book")
+example_grade_book
+```
+
+## Cleaning in R
+This data is then read into R. 
+
+First we get rid of the first row if present. This tells you about the posting. 
+
+```{r}
+example_grade_book <- example_grade_book[-1, ]
+example_grade_book
+```
+
+The next cleaning is to set missing values `<NA>` to zero, and `EX` to missing. The command `clean_grade_book()` will take the using tidy select type functions. 
+
+```{r}
+example_grade_book <- 
+  example_grade_book |> 
+  exam_clean_grade_book(OQ1:`Test 2`)
+example_grade_book
+```
+
+Next, we will convert all of the marks to proportions. The function `exam_convert_prop()` will do this if you give it the row for the totals. 
+
+```{r}
+example_grade_book <- 
+  example_grade_book |> 
+  exam_convert_prop(OQ1:`Test 2`, 1)
+example_grade_book
+```
+
+# Weighting
+Each piece of assessment contributes to the final total. We set the weightings in an assessment data frame. 
+```{r}
+weighting <- tibble(
+  assessment = colnames(example_grade_book)[-c(1:2)], 
+  group = rep(
+    c("quiz", "prac", "assignment", "test"), 
+              c(2, 2, 4, 2)
+    ), 
+  weight = c(2.5, 2.5, 5, 5, 5, 15, 15, 10, 20, 20)
+)
+weighting
+weighting |> 
+  group_by(group) |> 
+  summarise(weight = sum(weight))
+```
+Using this, and the function `exam_calculate_total()`, we get the total for the course
+```{r}
+example_grade_book$total <- 
+  example_grade_book |> 
+  exam_calculate_total(weighting)
+example_grade_book
+```
+
+# Rounding
+The total is now rounded to the nearest integer
+```{r}
+example_grade_book <- 
+  example_grade_book |> 
+  mutate(
+    total = round(total)
+  )
+```
+
+# Grades
+
+
+Grade roster
+
+Scaling
+
+
+
+
+
+
