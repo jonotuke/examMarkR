@@ -1,0 +1,12 @@
+Package: examMarkR
+Title: code to help finalise exam marks
+Version: 0.0.0.9000
+Authors@R: person("Jono", "Tuke", email = "jonotuke@gmail.com",
+                      role = c("aut", "cre"), 
+                      comment = c(ORCID = "0000-0002-1688-8951"))
+Description: Gives a series of function to help deal with finalising the 
+  exam marks for UoA. 
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
