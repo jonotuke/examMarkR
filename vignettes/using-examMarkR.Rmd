@@ -105,6 +105,19 @@ example_grade_book <-
 ```
 
 # Grades
+Now, we have the totals, we can convert that to a grade. The policy for grades is 
+
+- [Assessment for Coursework Programs Policy](https://www.adelaide.edu.au/policies/700)
+
+```{r}
+example_grade_book <- 
+  example_grade_book |> 
+  mutate(
+    grade = exam_get_grade(total)
+  )
+example_grade_book |> 
+  select(total, grade)
+```
 
 
 Grade roster
