@@ -1,55 +1,41 @@
-#' convert integer marks to grades
+#' exam_get_grade
 #'
-#' uses a table of upper and lower points to assign
-#' grades
-#'
-#' @param marks vector of integer marks
-#' @param grades table of grade boundaries, needs cols: grade, lower, upper
+#' convert mark to grade
+#' @param mark marks
 #'
 #' @return grades
 #' @export
+#'
 #' @examples
+#' pacman::p_load(tidyverse)
 #' tibble(
-#'   marks = 0:100,
-#'   grade = exam_get_grade(marks, trace = TRUE)
-#'   ) %>%
-#'   ggplot(aes(marks, grade, col = grade)) +
-#'   geom_point() +
-#'   scale_x_continuous(breaks = seq(0, 100, 5))
-#'   exam_get_grade(0:100, service = TRUE)
-#'   exam_get_grade(0:100, service = FALSE)
-exam_get_grade <- function(marks, grade_tab=NULL, trace = TRUE, service = FALSE) {
-  # round marks to ensure that grades fine
-  marks <- round(marks)
-  if(is.null(grade_tab)){
-    grade_tab <- dplyr::tibble(grade = c("FNS","FNA","FA","P","C","D","HD"),
-                         lower = c(0, 1,  45, 50, 65, 75, 85),
-                         upper = c(0, 44, 49, 64, 74, 84, 100))
-  }
-  # If service, then RAA is 40 - 49
-  if(service){
-    grade_tab$upper[2]  <- 39
-    grade_tab$lower[3]  <- 40
-  }
-  if(trace){
-    print(grade_tab)
-  }
-  grades <- character(length(marks))
-  for(i in seq_along(marks)){
-    for(j in seq_along(grade_tab$grade)){
-      if(marks[i] < 0){
-        stop("mark less than zero")
-      }
-      if(marks[i] > 100){
-        stop("mark greater than 100")
-      }
-      if(marks[i] >= grade_tab$lower[j] & marks[i] <= grade_tab$upper[j]){
-        grades[i] <- grade_tab$grade[j]
-        break
-      }
-    }
-  }
-  grades <- factor(grades, levels = c("FNS","FNA","FA","P","C","D","HD"))
-  return(grades)
+#'   mark = 0:100
+#' ) |>
+#'   mutate(
+#'     grade = exam_get_grade(mark)
+#'   ) |>
+#'   ggplot(aes(mark, grade, col = grade)) +
+#'   geom_point()
+exam_get_grade <- function(mark) {
+    grade <- case_when(
+      mark == 0 ~ "FNS",
+      between(mark, 1, 44) ~ "FNA",
+      between(mark, 45, 49) ~ "FA",
+      between(mark, 50, 64) ~ "P",
+      between(mark, 65, 74) ~ "C",
+      between(mark, 75, 84) ~ "D",
+      between(mark, 85, 100) ~ "HD"
+    )
+  grade <- factor(grade, levels = c("FNS","FNA","FA","P","C","D","HD"))
+  return(grade)
 }
+# pacman::p_load(tidyverse)
+# tibble(
+#   mark = 0:100
+# ) |>
+#   mutate(
+#     grade = exam_get_grade(mark)
+#   ) |>
+#   ggplot(aes(mark, grade, col = grade)) +
+#   geom_point()
 

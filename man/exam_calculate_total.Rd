@@ -4,35 +4,43 @@
 \alias{exam_calculate_total}
 \title{exam_calculate_total}
 \usage{
-exam_calculate_total(df, weights)
+exam_calculate_total(ID, df, weights)
 }
 \arguments{
-\item{df}{dataframe with proportions for each piece
-of asssessment.}
+\item{ID}{student ID}
 
-\item{weights}{dataframe with column with assessment names and
-column with weights}
+\item{df}{marks dataframe}
+
+\item{weights}{tibble with assessment and weight}
 }
 \value{
-vector of total marks.
+tibble with ID and mark
 }
 \description{
-Uses the proportions for each assessment and the
-weightings to get the total for each student. Also
-renormalises for exemptions as indicated by NAs.
+calculates the weighted mark
 }
 \examples{
 pacman::p_load(tidyverse, targets)
 df <- tibble(
-  A1 = c(1, 0.5, 0),
-  A2 = c(0, NA, 1),
-  OQ1 = c(1, 1, NA)
+ ID = LETTERS[1:3],
+ A1 = c(1, 0.5, 0),
+ A2 = c(0, NA, 1),
+ OQ1 = c(1, 1, NA)
 )
-weights <- tibble(
-  assessment = colnames(df),
-  weight = c(40, 40, 20)
-)
-weights
-df$total <- exam_calculate_total(df, weights)
 df
+weights_main <- tibble(
+ assessment = colnames(df)[-1],
+ weight = c(40, 40, 20)
+)
+weights_C <- tibble(
+ assessment = colnames(df)[-1],
+ weight = c(50, 50, 0)
+)
+marks <- LETTERS[1:2] |>
+ map_dfr(exam_calculate_total, df, weights_main) |>
+ bind_rows(
+   exam_calculate_total("C", df, weights)
+ )
+marks
+df |> left_join(marks, "ID")
 }

@@ -2,30 +2,27 @@
 % Please edit documentation in R/exam_get_grades.R
 \name{exam_get_grade}
 \alias{exam_get_grade}
-\title{convert integer marks to grades}
+\title{exam_get_grade}
 \usage{
-exam_get_grade(marks, grade_tab = NULL, trace = TRUE, service = FALSE)
+exam_get_grade(mark)
 }
 \arguments{
-\item{marks}{vector of integer marks}
-
-\item{grades}{table of grade boundaries, needs cols: grade, lower, upper}
+\item{mark}{marks}
 }
 \value{
 grades
 }
 \description{
-uses a table of upper and lower points to assign
-grades
+convert mark to grade
 }
 \examples{
+pacman::p_load(tidyverse)
 tibble(
-  marks = 0:100,
-  grade = exam_get_grade(marks, trace = TRUE)
-  ) \%>\%
-  ggplot(aes(marks, grade, col = grade)) +
-  geom_point() +
-  scale_x_continuous(breaks = seq(0, 100, 5))
-  exam_get_grade(0:100, service = TRUE)
-  exam_get_grade(0:100, service = FALSE)
+  mark = 0:100
+) |>
+  mutate(
+    grade = exam_get_grade(mark)
+  ) |>
+  ggplot(aes(mark, grade, col = grade)) +
+  geom_point()
 }

@@ -1,52 +1,85 @@
 #' exam_calculate_total
 #'
-#' Uses the proportions for each assessment and the
-#' weightings to get the total for each student. Also
-#' renormalises for exemptions as indicated by NAs.
+#' calculates the weighted mark
 #'
-#' @param df dataframe with proportions for each piece
-#' of asssessment.
-#' @param weights dataframe with column with assessment names and
-#' column with weights
+#' @param ID student ID
+#' @param df marks dataframe
+#' @param weights tibble with assessment and weight
 #'
-#' @return vector of total marks.
+#' @return tibble with ID and mark
 #' @export
 #'
 #' @examples
 #' pacman::p_load(tidyverse, targets)
-#' df <- tibble(
-#'   A1 = c(1, 0.5, 0),
-#'   A2 = c(0, NA, 1),
-#'   OQ1 = c(1, 1, NA)
-#' )
-#' weights <- tibble(
-#'   assessment = colnames(df),
-#'   weight = c(40, 40, 20)
-#' )
-#' weights
-#' df$total <- exam_calculate_total(df, weights)
-#' df
-exam_calculate_total <- function(df, weights){
+#'df <- tibble(
+#'  ID = LETTERS[1:3],
+#'  A1 = c(1, 0.5, 0),
+#'  A2 = c(0, NA, 1),
+#'  OQ1 = c(1, 1, NA)
+#')
+#'df
+#'weights_main <- tibble(
+#'  assessment = colnames(df)[-1],
+#'  weight = c(40, 40, 20)
+#')
+#'weights_C <- tibble(
+#'  assessment = colnames(df)[-1],
+#'  weight = c(50, 50, 0)
+#')
+#'marks <- LETTERS[1:2] |>
+#'  map_dfr(exam_calculate_total, df, weights_main) |>
+#'  bind_rows(
+#'    exam_calculate_total("C", df, weights)
+#'  )
+#'marks
+#'df |> left_join(marks, "ID")
+exam_calculate_total <- function(ID, df, weights){
   # Check inputs
   stopifnot("weight" %in% colnames(weights))
   stopifnot(sum(weights$weight) == 100)
   stopifnot("assessment" %in% colnames(weights))
   stopifnot(all(weights$assessment %in% colnames(df)))
-  # Set up list of totals
-  n_students <- nrow(df)
-  totals <- numeric(n_students)
+  stopifnot("ID" %in% colnames(df))
+  # Set the mark and total to zero
+  total <- 0
+  mark <- 0
+  # Get number of assessments
   n_assessment <- nrow(weights)
-  for(i in 1:n_students){
-    total <- 0
-    score <- 0
-    for(j in 1:n_assessment){
-      assessment <- weights$assessment[j]
-      if(!is.na(df[i, assessment])){
-        score <- score + as.numeric(df[i, assessment]) * weights$weight[j]
-        total <- total + weights$weight[j]
-      }
+  # Find the row for the given student
+  i <- which(df$ID == ID)
+  # For each assessment
+  for(j in 1:n_assessment){
+    assessment <- weights$assessment[j]
+    if(!is.na(df[i, assessment])){
+      # Calculate mark and total
+      mark <- mark + as.numeric(df[i, assessment]) * weights$weight[j]
+      total <- total + weights$weight[j]
     }
-    totals[i] <- score / total * 100
   }
-  return(totals)
+  # adjust mark if missing due to EX
+  mark <- mark / total * 100
+  return(tibble(ID, mark))
 }
+# pacman::p_load(tidyverse, targets)
+# df <- tibble(
+#   ID = LETTERS[1:3],
+#   A1 = c(1, 0.5, 0),
+#   A2 = c(0, NA, 1),
+#   OQ1 = c(1, 1, NA)
+# )
+# df
+# weights_main <- tibble(
+#   assessment = colnames(df)[-1],
+#   weight = c(40, 40, 20)
+# )
+# weights_C <- tibble(
+#   assessment = colnames(df)[-1],
+#   weight = c(50, 50, 0)
+# )
+# marks <- LETTERS[1:2] |>
+#   map_dfr(exam_calculate_total, df, weights_main) |>
+#   bind_rows(
+#     exam_calculate_total("C", df, weights)
+#   )
+# marks
+# df |> left_join(marks, "ID")
